@@ -1,0 +1,26 @@
+{
+  "name": "Gamepad-Grid-Mouse",
+  "version": "1.0.0",
+  "description": "Use a gamepad D-Pad to control mouse position and send clicks",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "rebuild": "npm rebuild --runtime=electron --target=1.8.4 --disturl=https://atom.io/download/atom-shell --abi=57"
+  },
+  "repository": "",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "blamarche",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^1.8.4"
+  },
+  "dependencies": {
+    "robotjs": "^0.5.1"
+  }
+}
