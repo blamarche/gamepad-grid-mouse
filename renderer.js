@@ -5,8 +5,8 @@ var robot = require("robotjs");
 el('save').onclick = saveConfig;
 
 var grid = {'sz': 25, 'sx': 400, 'sy': 300, 'rd': 100, 'rdf': 500};
-var map = {'u':12, 'd': 13, 'l': 14, 'r': 15, 'cl': 0, 'cr': 1, 'gc': 3, 'pr': 2};
-var mapState = {'u':null, 'd': null, 'l': null, 'r': null, 'cl': null, 'cr': null, 'gc': null, 'pr': null};
+var map = {'u':12, 'd': 13, 'l': 14, 'r': 15, 'cl': 0, 'cr': 1, 'gc': 3, 'pr': 2, 'sl': 4};
+var mapState = {'u':null, 'd': null, 'l': null, 'r': null, 'cl': null, 'cr': null, 'gc': null, 'pr': null, 'sl': null};
 
 loadConfig();
 
@@ -34,6 +34,7 @@ function saveConfig() {
 	map.cr = parseInt(el('cr').value);
 	map.gc = parseInt(el('gc').value);
 	map.pr = parseInt(el('pr').value);
+	map.sl = parseInt(el('sl').value);
 	
 	grid.sz = parseInt(el('gsz').value);
 	grid.sx = parseInt(el('gsx').value);
@@ -43,7 +44,7 @@ function saveConfig() {
 	
 	localStorage.setItem('map', JSON.stringify(map));
 	localStorage.setItem('grid', JSON.stringify(grid));
-	el('debug').innerHTML = "Config saved!";
+	alert("Config saved!");
 }
 
 function fillConfigForm() {
@@ -55,6 +56,7 @@ function fillConfigForm() {
 	el('cr').value = map.cr;
 	el('gc').value = map.gc;
 	el('pr').value = map.pr;	
+	el('sl').value = map.sl;	
 	
 	el('gsz').value = grid.sz;	
 	el('gsx').value = grid.sx;	
@@ -78,25 +80,29 @@ function checkGamePad() {
 function setupGamepad(gp) {
 	el('start').style.display='none';
 	el('inst').style.display='block';
-	window.setInterval(reportGamepad, 10);	
+
+	var html = "<h5>"+gp.id+"</h5>";
+	for(var i=0;i<gp.buttons.length;i++) {
+		html+= "<div class='btnstate' id='btn"+i+"'>"+i+"</div>";		
+	}
+	el('debug').innerHTML = html;	
+
+	window.setInterval(reportGamepad, 16);	
 }
 
 function reportGamepad() {
 	var gp = navigator.getGamepads()[0];
 	
-	//output debug state
-	
-	var html = "";
-		html += "id: "+gp.id+"<br/>";
-	for(var i=0;i<gp.buttons.length;i++) {
-		html+= "Button "+(i)+": ";
-		if(gp.buttons[i].pressed) html+= " pressed";
-		html+= "<br/>";
-	}
-	el('debug').innerHTML = html;	
-	
 	try {
-	
+		//output gp state	
+		for(var i=0;i<gp.buttons.length;i++) {
+			if(gp.buttons[i].pressed) {
+				el('btn'+i).classList.add('pressed');
+			} else {
+				el('btn'+i).classList.remove('pressed');
+			}
+		}
+			
 		//update map states	
 		for (var k in map) {
 			if (gp.buttons[map[k]].pressed && mapState[k]==null) {
@@ -138,14 +144,16 @@ function reportGamepad() {
 		
 	} catch (err) {
 		console.log(err);
-	}
-	
-	el('debug').innerHTML += "<br>"+ JSON.stringify(mapState);	
+	}	
 }
 
 var gsconfstep = 0;
 function trigger(k) {
 	var mp = robot.getMousePos();
+	
+	var sz=grid.sz;
+	if (mapState['sl']!=null) sz=2;	//slow mode move speed
+
 	switch (k) {
 		case 'cl': 
 			robot.mouseToggle('down', 'left');
@@ -153,17 +161,17 @@ function trigger(k) {
 		case 'cr': 
 			robot.mouseToggle('down', 'right'); 
 			break;
-		case 'u': 			
-			robot.moveMouse(mp.x, mp.y-grid.sz);
+		case 'u': 					
+			robot.moveMouse(mp.x, mp.y-sz);
 			break;
 		case 'd': 
-			robot.moveMouse(mp.x, mp.y+grid.sz);
+			robot.moveMouse(mp.x, mp.y+sz);
 			break;
 		case 'l': 
-			robot.moveMouse(mp.x-grid.sz, mp.y);
+			robot.moveMouse(mp.x-sz, mp.y);
 			break;
 		case 'r': 
-			robot.moveMouse(mp.x+grid.sz, mp.y);
+			robot.moveMouse(mp.x+sz, mp.y);
 			break;
 		case 'gc': 
 			if (gsconfstep==0) {
@@ -172,11 +180,13 @@ function trigger(k) {
 				grid.sy = mp.y;
 				fillConfigForm();
 				gsconfstep=1;
+				var notif = new Notification('Grid Reset Position Set', {body: 'Grid reset position set. Move to the next grid line and press again to set the size.'});
 			} else if (gsconfstep == 1) {
 				var mp = robot.getMousePos();
 				grid.sz = (Math.abs(mp.x - grid.sx) > Math.abs(mp.y - grid.sy)) ? Math.abs(mp.x - grid.sx) : Math.abs(mp.y - grid.sy);
 				fillConfigForm();
 				gsconfstep=0;
+				var notif = new Notification('Grid Size Set', {body: 'Grid size was set to '+grid.sz+'px'});
 			}
 			break;
 		case 'pr': 

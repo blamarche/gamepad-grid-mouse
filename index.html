@@ -1,51 +1,127 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Gamepad Grid Mouse</title>
-	<style>
-		html, body {
-			font-size: 12px;
-		}
-	</style>
-  </head>
-  <body>    
-    <h3 id='start'>Press a button on your primary gamepad to start...</h3>
-	<h4 style="display:none;" id='inst'>
-		<ol>		
-			<li>Open your desired application. </li>
-			<li>Position the mouse in the desired reset location. Press the GridConfig button on your controller. </li>
-			<li>Position the mouse on the next grid line, press the GridConfig button again.</li>
-			<li>(optional) Click Save to remember this grid setting.</li>
-		</ol>
-	</h4>	
-	
-	<hr>	
+	<head>
+		<meta charset="UTF-8">
+        <title>Gamepad Grid Mouse</title>
+        <link rel="stylesheet" href="pure-min.css" />
+		<style>
+			html, body {
+                background: #333;
+                color: #ddd;
+			}
+            hr {
+                height: 1px;
+                outline: none;
+                border: none;
+                background: #aaa;
+            }
+            button {
+                width: 100%;
+            }
+            input {
+                color:black;
+            }
+            .pure-u-5-5 {
+                padding: 10px;
+            }                        
+            .guide {
+                background: #444;
+                border-bottom: 1px solid #444;
+            }
+            #debug {
+                background: #222;
+                border-bottom: 1px solid #444;
+            }
+                #debug h5, .configcontainer h4 {
+                    margin-top:5px;
+                }
+            .header {
+                background: #07d;
+                color:white;
+                padding: 10px;
 
-	<h3>Configure Buttons</h3>
-	Up: <input type='text' id='u'></input><br>
-	Down: <input type='text' id='d'></input><br>
-	Left: <input type='text' id='l'></input><br>
-	Right: <input type='text' id='r'></input><br>
-	LeftClick: <input type='text' id='cl'></input><br>
-	RightClick: <input type='text' id='cr'></input><br>
-	PositionReset: <input type='text' id='pr'></input><br>	
-	GridConfig: <input type='text' id='gc'></input><br>
-	<br>
-	GridSize: <input type='text' id='gsz'></input><br>
-	GridStartX: <input type='text' id='gsx'></input><br>
-	GridStartY: <input type='text' id='gsy'></input><br>
-	FirstRepeatDelay (ms): <input type='text' id='rdf'></input><br>
-	RepeatDelay (ms): <input type='text' id='rd'></input><br>
-	<input type='button' id='save' value='save'></input><br>
-	
-	<hr>
-	
-	<div id="debug"></div>
-	
-	
-    <script>
-      require('./renderer.js')
-    </script>
-  </body>
+            }
+                .header h2 {
+                    margin-bottom: 0;
+                    margin-top: 10px;
+                }
+                .header a {
+                    display: block;
+                    margin-bottom: 10px;
+                    color:#eee;
+                }
+            .btnstate {
+                background: #555;
+                color: black;
+                font-size: 15px;
+                font-weight: bold;
+                float: left;
+                width:16.1%;
+                height: 20px;
+                margin: 1px;
+                text-align: center;
+                vertical-align: middle;
+            }
+                .btnstate.pressed {
+                    background: #07d;
+                    color: white;
+                }
+            
+		</style>
+	</head>
+	<body>  
+        <div class="header">
+            <h2>Gamepad Grid Mouse</h2>
+            <span><a target="_blank" href="https://github.com/blamarche/gamepad-grid-mouse">github.com/blamarche/gamepad-grid-mouse</a></span>
+        </div>  
+        <div class="pure-g">            
+            <div class="pure-u-5-5 guide">
+                <h4 id='start'>Press a button on your desired gamepad to start...</h4>
+                <h5 style="display:none;" id='inst'>
+                    <ol>		
+                        <li>Open your desired application. </li>
+                        <li>Position the mouse in the desired reset location. Press the <em>Configure Grid</em> button on your controller. </li>
+                        <li>Position the mouse on the next grid line, press the <em>Configure Grid</em> button again.</li>
+                        <li>(optional) Click <em>Save Config</em> to remember this grid setting.</li>
+                    </ol>
+                </h5>	
+            </div>            
+            <div class="pure-u-5-5" id="debug">
+            </div>
+            <div class="pure-u-5-5 configcontainer">
+                <h4>Configuration</h4>
+
+                <div id="config">                    
+                    <form class="pure-form pure-form-aligned">
+                        <fieldset>
+                            <div class="pure-control-group"><label for="u">Up</label><input placeholder="Button #" type='text' id='u'></input></div>
+                            <div class="pure-control-group"><label for="d">Down</label><input placeholder="Button #" type='text' id='d'></input></div>
+                            <div class="pure-control-group"><label for="l">Left</label><input placeholder="Button #" type='text' id='l'></input></div>
+                            <div class="pure-control-group"><label for="r">Right</label><input placeholder="Button #" type='text' id='r'></input></div>
+                            <div class="pure-control-group"><label for="cl">Left Click</label><input placeholder="Button #" type='text' id='cl'></input></div>
+                            <div class="pure-control-group"><label for="cr">Right Click</label><input placeholder="Button #" type='text' id='cr'></input></div>
+                            <div class="pure-control-group"><label for="pr">Reset Position</label><input placeholder="Button #" type='text' id='pr'></input></div>
+                            <div class="pure-control-group"><label for="gc">Configure Grid</label><input placeholder="Button #" type='text' id='gc'></input></div>
+                            <div class="pure-control-group"><label for="sl">Slow Mode Enable</label><input placeholder="Button #" type='text' id='sl'></input></div>
+                        </fieldset>                    
+                        <fieldset>
+                            <div class="pure-control-group"><label for="gsz">Grid Block Size</label><input placeholder="Number of Pixels" type='text' id='gsz'></input></div>
+                            <div class="pure-control-group"><label for="gsx">Reset Position X</label><input placeholder="" type='text' id='gsx'></input></div>
+                            <div class="pure-control-group"><label for="gsy">Reset Position Y</label><input placeholder="" type='text' id='gsy'></input></div>                        
+                        </fieldset>
+                        <fieldset>
+                            <div class="pure-control-group"><label for="rdf">First Repeat Delay (ms)</label><input placeholder="Wait time before repeating" type='text' id='rdf'></input></div>
+                            <div class="pure-control-group"><label for="rd">Repeat Rate (ms)</label><input placeholder="Frequency of repeats" type='text' id='rd'></input></div>
+                        </fieldset>
+                        
+                        <button type='button' id='save' value='save' class="pure-button pure-button-primary">Save Config</button>
+                    </form>
+                </div>              
+            </div>
+        </div>
+        
+        <script>
+            require('./renderer.js')
+        </script>
+	</body>
 </html>

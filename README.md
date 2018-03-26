@@ -7,9 +7,10 @@ This program is meant to allow playing games such as go on OGS or KGS, or chess 
 ## Build Instructions
 
 ```
-npm install --global --production windows-build-tools
-npm install robotjs --save
-npm run rebuild
+# windows only
+# npm install --global --production windows-build-tools
+npm install
+npm rebuild
 npm start
 ```
 
