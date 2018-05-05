@@ -5,8 +5,8 @@ var robot = require("robotjs");
 el('save').onclick = saveConfig;
 
 var grid = {'sz': 25, 'sx': 400, 'sy': 300, 'rd': 100, 'rdf': 500};
-var map = {'u':12, 'd': 13, 'l': 14, 'r': 15, 'cl': 0, 'cr': 1, 'gc': 3, 'pr': 2, 'sl': 4};
-var mapState = {'u':null, 'd': null, 'l': null, 'r': null, 'cl': null, 'cr': null, 'gc': null, 'pr': null, 'sl': null};
+var map = {'u':12, 'd': 13, 'l': 14, 'r': 15, 'cl': 0, 'cr': 1, 'gc': 3, 'pr': 2, 'sl': 4, 'fs': 5};
+var mapState = {'u':null, 'd': null, 'l': null, 'r': null, 'cl': null, 'cr': null, 'gc': null, 'pr': null, 'sl': null, 'fs': null};
 
 loadConfig();
 
@@ -35,6 +35,7 @@ function saveConfig() {
 	map.gc = parseInt(el('gc').value);
 	map.pr = parseInt(el('pr').value);
 	map.sl = parseInt(el('sl').value);
+	map.fs = parseInt(el('fs').value);
 	
 	grid.sz = parseInt(el('gsz').value);
 	grid.sx = parseInt(el('gsx').value);
@@ -57,6 +58,7 @@ function fillConfigForm() {
 	el('gc').value = map.gc;
 	el('pr').value = map.pr;	
 	el('sl').value = map.sl;	
+	el('fs').value = (typeof map.fs=="undefined" ? "5" : map.fs);	
 	
 	el('gsz').value = grid.sz;	
 	el('gsx').value = grid.sx;	
@@ -153,6 +155,7 @@ function trigger(k) {
 	
 	var sz=grid.sz;
 	if (mapState['sl']!=null) sz=2;	//slow mode move speed
+	if (mapState['fs']!=null) sz=grid.sz*4;	//fast mode move speed
 
 	switch (k) {
 		case 'cl': 
